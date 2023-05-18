@@ -26,9 +26,9 @@ export class ImageGallery extends Component {
     this.setState({ query: searchQuery });
   }
 
-  fetchImg = async () => {
-    const images = await GetImages(this.state.query, 1);
-  };
+  // fetchImg = async () => {
+  //   const images = await GetImages(this.state.query, 1);
+  // };
 
   render() {
     return (
