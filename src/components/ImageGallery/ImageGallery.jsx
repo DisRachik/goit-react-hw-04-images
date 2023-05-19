@@ -74,7 +74,10 @@ export class ImageGallery extends Component {
     return (
       <main>
         <ul className="ImageGallery">
-          {Boolean(images.length) && <ImageGalleryItem images={images} />}
+          {Boolean(images.length) &&
+            images.map(image => (
+              <ImageGalleryItem img={image} key={image.id} />
+            ))}
         </ul>
 
         {isLoading && <MagnifyingGlass />}
