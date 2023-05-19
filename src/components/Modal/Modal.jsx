@@ -10,7 +10,7 @@ export class Modal extends Component {
   }
 
   componentWillUnmount() {
-    window.addEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keydown', this.onKeyDown);
   }
 
   onKeyDown = e => {
@@ -20,6 +20,7 @@ export class Modal extends Component {
   };
 
   onOverlayClick = e => {
+    e.stopPropagation();
     if (e.target === e.currentTarget) {
       this.props.onClose();
     }

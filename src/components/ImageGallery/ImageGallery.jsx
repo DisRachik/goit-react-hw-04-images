@@ -28,9 +28,10 @@ export class ImageGallery extends Component {
         images: [],
         totalImages: 0,
       });
-      this.fetchImg(searchQuery, page);
+      this.fetchImg(searchQuery, 1);
     }
-    if (prevState.page !== page) {
+
+    if (prevState.page < page) {
       this.fetchImg(query, page);
     }
   }
