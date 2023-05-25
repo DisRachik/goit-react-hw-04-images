@@ -1,31 +1,27 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
 import { Searchbar, ImageGallery } from 'components';
 
-export class App extends Component {
-  state = {
-    searchQuery: '',
-  };
+export const App = () => {
+  const [searchQuery, setSearchQuery] = useState('');
 
-  searchQuery = searchQuery => {
-    if (searchQuery === this.state.searchQuery) {
+  const getNewQuery = newQuery => {
+    if (newQuery === searchQuery) {
       toast.warn('Enter a new search query', {
         theme: 'colored',
       });
       return;
     }
-    this.setState({ searchQuery });
+    setSearchQuery(newQuery);
   };
 
-  render() {
-    return (
-      <>
-        <ToastContainer />
-        <Searchbar onSubmit={this.searchQuery} />
-        <ImageGallery searchQuery={this.state.searchQuery} />
-      </>
-    );
-  }
-}
+  return (
+    <>
+      <ToastContainer />
+      <Searchbar onSubmit={getNewQuery} />
+      <ImageGallery searchQuery={searchQuery} />
+    </>
+  );
+};
