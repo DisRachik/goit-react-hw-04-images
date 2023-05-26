@@ -1,32 +1,25 @@
-import { Modal } from 'components';
 import PropTypes from 'prop-types';
-import { Component } from 'react';
+import { useState } from 'react';
+import { Modal } from 'components';
 
-export class ImageGalleryItem extends Component {
-  state = {
-    modalOpen: false,
-  };
+export const ImageGalleryItem = ({ img }) => {
+  const { webformatURL, tags, largeImageURL } = img;
+  const [modalOpen, setModalOpen] = useState(false);
 
-  toggleModal = () => {
-    this.setState(prevState => ({ modalOpen: !prevState.modalOpen }));
-  };
+  const toggleModal = () => setModalOpen(prevState => !prevState);
 
-  render() {
-    const { tags, webformatURL, largeImageURL } = this.props.img;
-    return (
-      <li className="ImageGalleryItem" onClick={this.toggleModal}>
-        <img src={webformatURL} alt={tags} className="ImageGalleryItem-image" />
-        {this.state.modalOpen && (
-          <Modal onClose={this.toggleModal} src={largeImageURL} alt={tags} />
-        )}
-      </li>
-    );
-  }
-}
+  return (
+    <li className="ImageGalleryItem" onClick={toggleModal}>
+      <img src={webformatURL} alt={tags} className="ImageGalleryItem-image" />
+      {modalOpen && (
+        <Modal onClose={toggleModal} src={largeImageURL} alt={tags} />
+      )}
+    </li>
+  );
+};
 
 ImageGalleryItem.propTypes = {
   img: PropTypes.shape({
-    id: PropTypes.number.isRequired,
     tags: PropTypes.string.isRequired,
     webformatURL: PropTypes.string.isRequired,
     largeImageURL: PropTypes.string.isRequired,
