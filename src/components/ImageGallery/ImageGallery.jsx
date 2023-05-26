@@ -22,7 +22,6 @@ export const ImageGallery = ({ searchQuery }) => {
     const fetchImg = async (query, page) => {
       try {
         setIsLoading(true);
-        setError('');
 
         const data = await GetImages(query, page);
 
@@ -66,6 +65,7 @@ export const ImageGallery = ({ searchQuery }) => {
         theme: 'colored',
       });
     }
+    setError('');
   }, [error]);
 
   const addNextImages = () => {
