@@ -8,6 +8,7 @@ import { getImages as GetImages } from '../../service/api';
 import { BtnLoadMore, ImageGalleryItem } from 'components';
 
 export const ImageGallery = ({ searchQuery }) => {
+  const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,7 +16,12 @@ export const ImageGallery = ({ searchQuery }) => {
   const [totalImages, setTotalImages] = useState(0);
 
   useEffect(() => {
-    if (!searchQuery) {
+    setQuery(searchQuery);
+    setPage(1);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (!query) {
       return;
     }
 
@@ -27,7 +33,6 @@ export const ImageGallery = ({ searchQuery }) => {
 
         if (!data.totalHits) {
           setImages([]);
-          setPage(1);
           setTotalImages(0);
           setError(
             'Sorry, there are no images matching your search query. Please try again.'
@@ -56,8 +61,8 @@ export const ImageGallery = ({ searchQuery }) => {
       }
     };
 
-    fetchImg(searchQuery, page);
-  }, [page, searchQuery]);
+    fetchImg(query, page);
+  }, [page, query]);
 
   useEffect(() => {
     if (error) {
