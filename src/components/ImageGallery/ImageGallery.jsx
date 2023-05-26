@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import { MagnifyingGlass } from 'react-loader-spinner';
@@ -7,88 +7,85 @@ import { getImages as GetImages } from '../../service/api';
 
 import { BtnLoadMore, ImageGalleryItem } from 'components';
 
-export class ImageGallery extends Component {
-  state = {
-    query: '',
-    page: 1,
-    images: [],
-    isLoading: false,
-    error: '',
-    totalImages: 0,
-  };
+export const ImageGallery = ({ searchQuery }) => {
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [totalImages, setTotalImages] = useState(0);
 
-  componentDidUpdate(prevProps, prevState) {
-    const { searchQuery } = this.props;
-    const { query, page } = this.state;
-
-    if (prevProps.searchQuery !== searchQuery) {
-      this.setState({
-        query: searchQuery,
-        page: 1,
-        images: [],
-        totalImages: 0,
-      });
-      this.fetchImg(searchQuery, 1);
+  useEffect(() => {
+    if (!searchQuery) {
+      return;
     }
 
-    if (prevState.page < page) {
-      this.fetchImg(query, page);
-    }
-  }
+    const fetchImg = async (query, page) => {
+      try {
+        setIsLoading(true);
+        setError('');
 
-  fetchImg = async (query, page) => {
-    try {
-      this.setState({ isLoading: true, error: '' });
+        const data = await GetImages(query, page);
 
-      const data = await GetImages(query, page);
-      const images = data.hits.map(
-        ({ id, tags, webformatURL, largeImageURL }) => ({
-          id,
-          tags,
-          webformatURL,
-          largeImageURL,
-        })
-      );
+        if (!data.totalHits) {
+          setImages([]);
+          setPage(1);
+          setTotalImages(0);
+          setError(
+            'Sorry, there are no images matching your search query. Please try again.'
+          );
 
-      this.setState(prevState => {
-        return {
-          images: [...prevState.images, ...images],
-          totalImages: data.totalHits,
-        };
-      });
-    } catch (error) {
-      this.setState({ error: 'Something went wrong, try again!' });
-      toast.error(this.state.error, {
+          return;
+        }
+
+        const newImages = data.hits.map(
+          ({ id, tags, webformatURL, largeImageURL }) => ({
+            id,
+            tags,
+            webformatURL,
+            largeImageURL,
+          })
+        );
+
+        setImages(prevState =>
+          page === 1 ? [...newImages] : [...prevState, ...newImages]
+        );
+        setTotalImages(data.totalHits);
+      } catch (error) {
+        setError('Something went wrong, try again!');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchImg(searchQuery, page);
+  }, [page, searchQuery]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error, {
         theme: 'colored',
       });
-    } finally {
-      this.setState({ isLoading: false });
     }
+  }, [error]);
+
+  const addNextImages = () => {
+    setPage(prevState => prevState + 1);
   };
 
-  addNextImages = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
-  };
+  return (
+    <main>
+      <ul className="ImageGallery">
+        {Boolean(images.length) &&
+          images.map(image => <ImageGalleryItem img={image} key={image.id} />)}
+      </ul>
 
-  render() {
-    const { images, totalImages, isLoading } = this.state;
-    return (
-      <main>
-        <ul className="ImageGallery">
-          {Boolean(images.length) &&
-            images.map(image => (
-              <ImageGalleryItem img={image} key={image.id} />
-            ))}
-        </ul>
-
-        {isLoading && <MagnifyingGlass />}
-        {images.length < totalImages && (
-          <BtnLoadMore handleLoad={this.addNextImages} />
-        )}
-      </main>
-    );
-  }
-}
+      {isLoading && <MagnifyingGlass />}
+      {images.length < totalImages && (
+        <BtnLoadMore handleLoad={addNextImages} />
+      )}
+    </main>
+  );
+};
 
 ImageGallery.propTypes = {
   searchQuery: PropTypes.string.isRequired,
